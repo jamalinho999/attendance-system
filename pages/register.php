@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+$courses = $pdo->query("SELECT * FROM courses")->fetchAll();
 
 $error = "";
 $success = "";
@@ -11,7 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $role_name = $_POST['role']; // admin, lecturer, student
+$course_id = $_POST['course_id'] ?? null;
+$current_year = $_POST['current_year'] ?? null;
+$current_semester = $_POST['current_semester'] ?? null;
 
+// Only students need course/year/semester
+if ($role_name !== 'student') {
+    $course_id = null;
+    $current_year = null;
+    $current_semester = null;
+}
     if (empty($full_name) || empty($university_id) || empty($email) || empty($password)) {
         $error = "All fields are required.";
     } else {
@@ -32,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-                $insert = $pdo->prepare("INSERT INTO users (role_id, full_name, university_id, email, password_hash) VALUES (?, ?, ?, ?, ?)");
-                $insert->execute([$role['role_id'], $full_name, $university_id, $email, $password_hash]);
+               $insert = $pdo->prepare("INSERT INTO users (role_id, full_name, university_id, email, password_hash, course_id, current_year, current_semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+$insert->execute([$role['role_id'], $full_name, $university_id, $email, $password_hash, $course_id, $current_year, $current_semester]);
 
                 $success = "Registration successful! You can now log in.";
             }
@@ -83,15 +93,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label>Password</label>
                 <input type="password" name="password" class="form-control" required>
-            </div>
+        
             <div class="mb-3">
-                <label>Role</label>
-                <select name="role" class="form-control" required>
-                    <option value="student">Student</option>
-                    <option value="lecturer">Lecturer</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
+    <label>Role</label>
+    <select name="role" id="roleSelect" class="form-control" required onchange="toggleStudentFields()">
+        <option value="student">Student</option>
+        <option value="lecturer">Lecturer</option>
+        <option value="admin">Admin</option>
+    </select>
+</div>
+<div id="studentFields">
+    <div class="mb-3">
+        <label>Course</label>
+        <select name="course_id" class="form-control">
+            <?php foreach ($courses as $c): ?>
+                <option value="<?php echo $c['course_id']; ?>"><?php echo htmlspecialchars($c['course_name']); ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="row">
+        <div class="col-6 mb-3">
+            <label>Current Year</label>
+            <select name="current_year" class="form-control">
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+            </select>
+        </div>
+        <div class="col-6 mb-3">
+            <label>Current Semester</label>
+            <select name="current_semester" class="form-control">
+                <option value="1">1</option><option value="2">2</option>
+            </select>
+        </div>
+    </div>
+</div>
+<script>
+function toggleStudentFields() {
+    document.getElementById('studentFields').style.display = 
+        document.getElementById('roleSelect').value === 'student' ? 'block' : 'none';
+}
+</script>
+            
             <button type="submit" class="btn btn-primary w-100">Register</button>
         </form>
         <p class="text-center mt-3 text-secondary">Already have an account? <a href="login.php" style="color:#58a6ff;">Login</a></p>

@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $error = "";
 $success = "";
 
-// Handle Add Unit
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_unit'])) {
     $unit_code = trim($_POST['unit_code']);
     $unit_name = trim($_POST['unit_name']);
@@ -27,8 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_unit'])) {
         $success = "Unit added successfully.";
     }
 }
-
-// Handle Remove Unit
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reassign_lecturer'])) {
+    $unit_id = $_POST['unit_id'];
+    $new_lecturer_id = $_POST['new_lecturer_id'];
+    $stmt = $pdo->prepare("UPDATE units SET lecturer_id = ? WHERE unit_id = ?");
+    $stmt->execute([$new_lecturer_id, $unit_id]);
+    $success = "Lecturer reassigned successfully.";
+}
 if (isset($_GET['delete'])) {
     $unit_id = $_GET['delete'];
     $stmt = $pdo->prepare("DELETE FROM units WHERE unit_id = ?");
@@ -36,17 +40,16 @@ if (isset($_GET['delete'])) {
     $success = "Unit removed.";
 }
 
-// Get all courses for dropdown
+
 $courses = $pdo->query("SELECT * FROM courses")->fetchAll();
 
-// Get all lecturers for dropdown
+
 $lecturers = $pdo->query("
     SELECT u.user_id, u.full_name FROM users u 
     JOIN roles r ON u.role_id = r.role_id 
     WHERE r.role_name = 'lecturer'
 ")->fetchAll();
 
-// Get all units with course name + lecturer name
 $units = $pdo->query("
     SELECT units.*, courses.course_name, users.full_name AS lecturer_name
     FROM units
@@ -145,7 +148,19 @@ $units = $pdo->query("
                             <td><?php echo htmlspecialchars($u['unit_name']); ?></td>
                             <td><?php echo htmlspecialchars($u['course_name']); ?></td>
                             <td>Y<?php echo $u['year']; ?> S<?php echo $u['semester']; ?></td>
-                            <td><?php echo htmlspecialchars($u['lecturer_name']); ?></td>
+                            <td>
+    <form method="POST" class="d-flex gap-1">
+        <input type="hidden" name="unit_id" value="<?php echo $u['unit_id']; ?>">
+        <select name="new_lecturer_id" class="form-select form-select-sm">
+            <?php foreach ($lecturers as $l): ?>
+                <option value="<?php echo $l['user_id']; ?>" <?php echo ($l['user_id'] == $u['lecturer_id']) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($l['full_name']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" name="reassign_lecturer" class="btn btn-sm btn-outline-info">Save</button>
+    </form>
+</td>
                             <td>
                                 <a href="?delete=<?php echo $u['unit_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this unit?')">Remove</a>
                             </td>
