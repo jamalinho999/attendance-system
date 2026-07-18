@@ -74,6 +74,7 @@ if (isset($_SESSION['active_session_id'])) {
             <a href="../pages/logout.php" class="btn btn-sm btn-outline-danger">Logout</a>
         </div>
     </nav>
+   
     <div class="container py-5">
         <?php if ($activeSession): ?>
             <div class="stat-card p-5 mx-auto" style="max-width: 500px;">

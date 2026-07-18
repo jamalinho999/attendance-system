@@ -42,11 +42,7 @@ $units = $units->fetchAll();
         </div>
     </nav>
     <div class="d-flex">
-        <div class="sidebar p-3" style="width: 200px;">
-            <a href="dashboard.php" class="nav-link active rounded p-2 mb-1">Dashboard</a>
-            <a href="open_session.php" class="nav-link rounded p-2 mb-1">Open Session</a>
-            <a href="#" class="nav-link rounded p-2 mb-1">Reports</a>
-        </div>
+        <?php include 'sidebar.php'; ?>
         <div class="flex-grow-1 p-4">
             <h4 class="mb-4">Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?></h4>
             <h6 class="text-secondary mb-3">Your units</h6>
