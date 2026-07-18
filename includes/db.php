@@ -5,7 +5,7 @@ $dbname = getenv('MYSQL_DATABASE') ?: 'attendease_db';
 $username = getenv('MYSQL_USER') ?: 'root';
 $password = getenv('MYSQL_PASSWORD') ?: '';
 $port = getenv('MYSQL_PORT') ?: '3306';
-
+die("HOST: " . getenv('MYSQLHOST') . " PORT: " . getenv('MYSQLPORT') . " DB: " . getenv('MYSQLDATABASE'));
 try {
     $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
     $pdo = new PDO($dsn, $username, $password, [
