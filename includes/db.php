@@ -1,5 +1,4 @@
 <?php
-<?php
 // Parse Railway public MySQL URL if available
 if (getenv('MYSQL_PUBLIC_URL')) {
     $url = parse_url(getenv('MYSQL_PUBLIC_URL'));
@@ -16,7 +15,7 @@ if (getenv('MYSQL_PUBLIC_URL')) {
     $username = 'root';
     $password = '';
 }
-die("HOST: " . getenv('MYSQLHOST') . " PORT: " . getenv('MYSQLPORT') . " DB: " . getenv('MYSQLDATABASE'));
+
 try {
     $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
     $pdo = new PDO($dsn, $username, $password, [
