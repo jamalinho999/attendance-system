@@ -1,10 +1,21 @@
 <?php
-// Use Railway environment variables in production, fallback to local WAMP settings
-$host = getenv('MYSQL_HOST') ?: 'localhost';
-$dbname = getenv('MYSQL_DATABASE') ?: 'attendease_db';
-$username = getenv('MYSQL_USER') ?: 'root';
-$password = getenv('MYSQL_PASSWORD') ?: '';
-$port = getenv('MYSQL_PORT') ?: '3306';
+<?php
+// Parse Railway public MySQL URL if available
+if (getenv('MYSQL_PUBLIC_URL')) {
+    $url = parse_url(getenv('MYSQL_PUBLIC_URL'));
+    $host = $url['host'];
+    $port = $url['port'];
+    $username = $url['user'];
+    $password = $url['pass'];
+    $dbname = ltrim($url['path'], '/');
+} else {
+    // Local WAMP defaults
+    $host = 'localhost';
+    $port = '3306';
+    $dbname = 'attendease_db';
+    $username = 'root';
+    $password = '';
+}
 die("HOST: " . getenv('MYSQLHOST') . " PORT: " . getenv('MYSQLPORT') . " DB: " . getenv('MYSQLDATABASE'));
 try {
     $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
