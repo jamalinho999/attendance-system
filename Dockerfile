@@ -1,12 +1,11 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-RUN a2dismod mpm_event || true && \
-    a2dismod mpm_worker || true && \
-    a2enmod mpm_prefork && \
-    docker-php-ext-install pdo pdo_mysql mysqli
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-COPY . /var/www/html/
+COPY . /app
 
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+WORKDIR /app
 
 EXPOSE 80
+
+CMD ["php", "-S", "0.0.0.0:80", "-t", "/app"]
