@@ -1,7 +1,9 @@
-FROM dunglas/frankenphp:php8.4-bookworm
+FROM php:8.2-apache
 
-RUN install-php-extensions pdo_mysql mysqli
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-COPY . /app
+COPY . /var/www/html/
 
-ENV SERVER_NAME=:80
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+EXPOSE 80
